@@ -1,6 +1,8 @@
 julia-notebook
 ==========
 
+<!-- TOC -->autoauto- [1 使用前的准备工作](#1-使用前的准备工作)auto    - [1.1 概述](#11-概述)auto    - [1.2 学习资源](#12-学习资源)auto    - [1.3 Julia安装](#13-julia安装)auto    - [1.4 IDE](#14-ide)auto- [2 基本语法](#2-基本语法)auto    - [2.1 变量](#21-变量)auto    - [2.2 数值](#22-数值)auto    - [2.3 字符串](#23-字符串)auto    - [2.4 流程控制](#24-流程控制)auto        - [2.4.1 条件结构](#241-条件结构)auto        - [2.4.2 循环结构](#242-循环结构)auto        - [2.4.3 复合结构](#243-复合结构)auto        - [2.4.4 异常处理](#244-异常处理)auto    - [2.5 函数](#25-函数)auto        - [2.5.1 基本定义与使用](#251-基本定义与使用)auto        - [2.5.2 特殊函数定义与使用](#252-特殊函数定义与使用)auto        - [2.5.3 函数对象](#253-函数对象)auto        - [2.5.4 匿名函数](#254-匿名函数)auto        - [2.5.5 参数限定](#255-参数限定)auto        - [2.5.6 多态分发（类似方法重载）](#256-多态分发类似方法重载)auto        - [2.5.7 常用函数](#257-常用函数)auto- [3 高级用法](#3-高级用法)auto    - [3.1 协程初识](#31-协程初识)autoauto<!-- /TOC -->
+
 一份Julia的学习手册。
 
 ## 1 使用前的准备工作
@@ -144,11 +146,11 @@ Junia安装：<https://julialang.org/downloads>
 
 * 先定义
   
-  ```Julia
-  function g(f:Function, x, y, z)
-    f(x,y,z)
-  end
-  ```
+```Julia
+function g(f:Function, x, y, z)
+  f(x,y,z)
+end
+```
 
 * 再调用
 
@@ -210,3 +212,24 @@ function f1(x1::T1,x2::T2) where {T1 <: Int32, T2 <: Int32} … end
  `sort()` | 可对数组排序
 
 ## 3 高级用法
+
+### 3.1 协程初识
+
+类似函数，但无调用者与被调用者区分。使用Channel机制实现。先进先出的队列，允许多个Task对它进行读和写。
+
+实例：
+
+* 先定义
+
+  ```Julia
+  function producer(c::Channel)
+  put!(c,”start”)
+  end
+  ```
+
+* 再使用
+
+  ```Julia
+  chnl=Channel(producer)
+  take!(chnl)
+  ```
