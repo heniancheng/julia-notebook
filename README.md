@@ -79,15 +79,42 @@ Junia安装：<https://julialang.org/downloads>
 
 举例：
 
+```Julia
+if z > 2
+    println("z > 2")
+else
+    println("z < 2")
+end
+```
+
 #### 2.4.2 循环结构
 
 结构1：`while-end`
 
 举例1：
 
+```Julia
+i=1
+while i <= 5
+    global i
+    print(i, " ")
+    i += 1
+end
+```
+
 结构2：`for i in [v1,v2]`或者`for i=n1:n3`
 
 举例2：
+
+```Julia
+for i ∈ 1:5
+    print(i," ")
+end
+
+for i in 2:3, j in (1,2,3,4,5)
+    print((i,j)," ")
+end
+```
 
 **小技巧：**
 
@@ -104,8 +131,6 @@ Junia安装：<https://julialang.org/downloads>
 #### 2.4.4 异常处理
 
 结构：`try-catch-end`
-
-举例：
 
 ### 2.5 函数
 
@@ -211,7 +236,45 @@ function f1(x1::T1,x2::T2) where {T1 <: Int32, T2 <: Int32} … end
 
 ## 3 高级用法
 
-### 3.1 协程初识
+### 3.1 复杂数据类型
+
+### 3.2 日期与时间
+
+### 3.3 CSV文件读取
+
+### 3.4 DataFrame数据
+
+### 3.5 模块
+
+#### 3.5.1基本定义与使用
+
+* 定义
+
+  `module modname`可用export导出模块里面的函数
+
+* 使用
+
+  `using modname`  `modname.fun()`调用模块函数，或者直接调用函数`fun()`  
+  import可代替using，还可以修改模块  
+  需要将该模块保存成.jl文件，并将路径位置加入LOAD_PATH中
+
+  ```Julia
+  push!(LOAD_PATH,"/home/runner/JuliaStudy/0618")
+  using mymod1
+  fun1()
+  ```
+
+#### 3.2.2 标准模块
+
+* Main模块：顶层模块，当前运行模块`varinfo()`
+* Core模块：语言的核心部分，默认声明了该模块
+* Base模块：基本功能部分，默认声明了该模块
+
+
+
+### 3.5 元编程与并行计算
+
+### 3.6 协程初识
 
 类似函数，但无调用者与被调用者区分。使用Channel机制实现。先进先出的队列，允许多个Task对它进行读和写。
 
