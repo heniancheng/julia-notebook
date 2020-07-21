@@ -238,15 +238,235 @@ function f1(x1::T1,x2::T2) where {T1 <: Int32, T2 <: Int32} … end
 
 ### 3.1 复杂数据类型
 
-### 3.2 日期与时间
+#### 3.1.1 特征数据
 
-### 3.3 CSV文件读取
+* 数组
+
+  定义：`arr=[1,2,3]`  
+  使用：`arr[1]`、`arr[2:3]`、 `for x in arr`  
+  更新：`arr[2]=3`  
+  添加：`push!()`  
+  删除：`deleteat!(arr,3)`、 `deleteat!(arr,1:2)`
+
+* 元组（**类似于数组，但不能修改**）
+
+  定义：`tup=(1,2,3)`  
+  使用：`tup[1]`、`tup[2:3]`、`for x in tup`  
+  类似字典定义：tup=(name=”hc”,age=32)  
+  类似字典使用：`tup.name`、`tup.age`  
+  常用函数：`length(tup)`、`in(1,tup)`  
+  分解给变量：`a,b,c=(1,2,3) == a=1 b=2 c=3`
+
+* 字典（类比成映射）
+
+  定义：`dict=Dict(key=>value,key=>value)`  
+  使用：`keys()`、`values()`、`dict[“key”]`  
+  操作字典：`dict[“key”]=”new”`、`delete!(dict,”key”)`  
+  常用函数：`in(“key”=>”value”, dict)`、`haskey(dict, “key”)`
+
+* 集合（无序不重复）
+
+  定义：`set=Set([[1,2,3],4,5,”hello”])`  
+  功能：数组或元组去重，成员测试。`if x in set`  
+  运算：`push!()`、`pop!()`、`union()`、`intersect()`、`setdiff()`
+
+#### 3.2.2 多维数组
+
+* 基本使用
+  * 定义：  
+  `matrix=[1 2 3;4 5 6]`  
+  `rand(1:100,3,4)`  
+  `ones(m,n)`/`zeros(m,n)`  `trues(m,n)/falses(m,n)`  
+  `reshape(ma,m,n)`/`copy(ma)`
+  * 怎么引用元素？（见DataFrames包使用）
+  * 引用元素：  
+  `matrix[1,2]`  
+  `matrix[end,end]`  
+  `matrix[:,2]`
+* 矩阵操作
+  * 拼接：  
+  横向`[m1 m2]`/纵向`[m1;m2]`  
+  嵌套矩阵`[m1,m2]`
+  * 运算：  
+  转置`m’`  
+  乘法`m1*m2`/除法`m1*m2^(-1)`
+  * 常用函数：  
+  `typeof()`/`eltype()`  
+  `length()`/`ndims()`、/`size()`
+  * 点运算：  
+  `round/abs/sqrt/sin.(ma)`
+* 矩阵过滤
+  * 列过滤：  
+  `m[m[:,4].<10,:]`筛选行
+  * 行过滤：  
+  `m[:,m[4,:].<10]`筛选列
+  * 行与列过滤：  
+  `m[m[:,4].<10, m[4,:].<10]`
+* 其他函数  
+  * 用于创建数组：  
+  `hcat(1,2,3,4)`  
+  `vcat(1,2,3,4)`  
+  `hvcat(1,2,3,4)`  
+  * 索引位置：  
+  `CartesianIndex(i,j,k…)`  
+  `LinearIndices(matrix)`  
+  * 创建视图：  
+  `view(matrix,1:2,1:2)`  
+  `@view matrix[1:2,1:2]`  
+  * 稀疏数组：（`SparseArrays`、`LinearAlgebra`）  
+  `spzeros()`/`sparse(I,3,5)`  
+  `sparse(UniformScaling(10),3,5)`  
+  `sprand(3,5)`  
+  * 矢量化计算：  
+   `map(f,[v1,v2,v3])`
+
+#### 3.2.3 结构类型
+
+* 复合类型  
+定义：`mutable struct stu var::Float32 var::Int32 end`  
+查看内部结构：`dump(stu)`、`fieldnames(stu)`  
+使用：对象.成员变量
+* 联合类型  
+定义：`Union{T1,T2}`
+* 构造函数  
+定义：与类型相同的函数
+* 类型参数化  
+定义：  
+`mutable struct stu{T1,T2} var::T1 var::T2 end`  
+参数化抽象类型：  
+`abstract type Point{T1} end`
+
+### 3.2 日期与时间（Dates包）
+
+#### 3.2.1 Date函数
+
+* 创建：  
+`t=Date(2019)/Date(2019,2)/Date(2019,2,2)/Dates.today()`
+* 获取：  
+`Dates.year(t)/month(t)/day(t)/yearmonth(t)/monthday(t)`  
+`Dates.Year(t)/Month(t)/Day(t)`
+* 计算天数：  
+`dump(t)/t.instant/Dates.value(t)`
+* 星期几：  
+`dayofweek(t)/dayname(t)`
+* 月份：  
+`month(t)/monthname(t)`  
+`daysinmonth(t)`月份有多少天  
+`today()`当前日期
+* 天数/季节：  
+`dayofyear(t)`当年第几天  
+`isleapyear(t)`是闰年？  
+`quarterofyear(t)`第几季度  
+`dayofquarter()`所在季度第几天
+
+#### 3.2.2 DateTime函数（带时分秒）
+
+* 创建：`DateTime(2019,…)/Dates.now()`  
+获取：`Dates.hour(t)/minute(t)/second(t)`
+
+#### 3.2.3 时间运算
+
+* 年份相加：  
+`Dates.Year(t1)+Dates.Year(t2)`
+* Date()运算：  
+`Dates.today()+Dates.Year(2)+Dates.Month(3)+Dates.Day(10)`
+* DateTime()运算：  
+`Dates.now()+Dates.Hour(2)+Dates.Minute(2)+…`
+
+#### 3.2.4 时间序列（TimeSeries包）
+
+* 创建：  
+`ts=collect(Date(2018,1,1):Dates.Day(5):Date(2018,6,6))`
+* 时间数据表：  
+`ta=TimeArray(ts,rand(length(ts),2))`
+* 得到时间序列：  
+`timestamp(ta::TimeArray)`
+* 得到随机数据：  
+`values(ta::TimeArray)`
+
+### 3.3 文件读写
+
+#### 3.3.1 普通文件读写
+
+* 创建：  
+  `myfile=open(“filename”,”w/a/r+”)`，返回类型是IOStream
+* 写入：  
+  `write(myfile,”write some content”)`  
+  调用close(myfile)才从缓冲区写入文件，数字以ASCII码写入  
+  open() do f结构可以免去close()手动调用
+* 读取：  
+  readlines(myfile)读取所有  
+  readline(myfile)读取当前行  
+  read(myfile,Char/String)读取一个字符或整个内容
+
+#### 3.3.2 矩阵读写
+
+* 使用模块：`using DelimitedFiles`
+* 写入：`writedlm(myfile,mymatrix)`
+* 读取：`readdlm(myfile)`
+
+#### 3.3.3 CSV文件读取
+
+* 使用模块：`using DelimitedFiles`
+* 写入：`writedlm(myfile,mymatrix,’,’)`
+* 读取：`readdlm(myfile)`读取的是字符串
+
+#### 3.3.4 IOBuffer内存对象
+
+* 创建：`myio=IOBuffer()`
+* 写入：`write(myio,”hello”,”world”)`
+* 读取：`String(take!(myio))`
 
 ### 3.4 DataFrame数据
 
+#### 3.4.1 包的查看与安装
+
+* 查看：`import Pkg;Pkg.status()`或者pkg模式下`status`
+* 安装：`import Pkg;Pkg.add()`或者pkg模式下`add package`
+* 移除：`import Pkg;Pkg.rm()`或者pkg模式下`rm package`
+
+#### 3.4.2 表格显示矩阵
+
+* 由矩阵创建：  
+`mydf=DataFrame(mymatrix)`
+* 由数组创建：
+
+```Julia
+mydf=DataFrame()
+mydf[:name1]=mya1
+mydf[:name2]=mya2
+```
+
+* 操作：  
+`size(mydf)`得到行与列  
+`size(mydf,1)`得到行  
+`size(mydf,2)`得到列
+* 列的选择与查看：  
+`mydf[2:4]`或者`mydf[[:name1,:name2]]`
+* 行的选择与查看：  
+`mydf[2:4,:]`、`eachrow(mydf)`结合for一行一行使用
+
+#### 3.4.3 函数的应用
+
+* 最大最小  
+`maximun(mydf.name1)`  
+`minimum(mydf.name1)`
+* 求和：`sum(mydf.name1)`
+* 升序降序：  
+`sort!(mydf,cols=[:name1],rev=true/false)`
+* 统计信息：  
+`describe(mydf)` 平均数/最小值/中位数/最大值/数据类型
+
+#### 3.4.4 读取CSV文件
+
+```Julia
+Pkg.add(“CSV”)
+CSV.read(“myfile”;header=[“col1”,”col2”,”col3”])
+```
+
 ### 3.5 模块
 
-#### 3.5.1基本定义与使用
+#### 3.5.1 基本定义与使用
 
 * 定义
 
@@ -264,17 +484,15 @@ function f1(x1::T1,x2::T2) where {T1 <: Int32, T2 <: Int32} … end
   fun1()
   ```
 
-#### 3.2.2 标准模块
+#### 3.5.2 标准模块
 
 * Main模块：顶层模块，当前运行模块`varinfo()`
 * Core模块：语言的核心部分，默认声明了该模块
 * Base模块：基本功能部分，默认声明了该模块
 
+### 3.6 元编程与并行计算
 
-
-### 3.5 元编程与并行计算
-
-### 3.6 协程初识
+### 3.7 协程初识
 
 类似函数，但无调用者与被调用者区分。使用Channel机制实现。先进先出的队列，允许多个Task对它进行读和写。
 
